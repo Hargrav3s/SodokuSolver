@@ -10,3 +10,4 @@ def read_board(path):
 # writes a sudoku board in python list format to a file specified by path.
 def write_board(board, path):
     pass
+  
