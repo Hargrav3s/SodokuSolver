@@ -31,5 +31,19 @@ def read_board(path):
 
 # writes a sudoku board in python list format to a file specified by path.
 def write_board(board, path):
-    pass
+    
+    # create the file to write into
+    try:
+        with open(path, 'x') as file:
+            for i, element in enumerate(board):
+                if i % 9 == 0 and i != 0:
+                    file.write('\n')
+                
+                if not element:
+                    file.write('X')
+                else:
+                    file.write(str(element))
+    except FileExistsError:
+        print('File already exists')
+        exit()
   
