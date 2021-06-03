@@ -73,7 +73,7 @@ class SudokuSolver(object):
             rowHash[row].add(num)
             colHash[col].add(num)
             squareHash[square].add(num)
-
+        
         return False
 
 
@@ -88,6 +88,7 @@ class SudokuSolver(object):
         colHash = {i:set([j for j in range(1, 10)]) for i in range(9)}
         squareHash = {(i, j): set([k for k in range(1, 10)]) for i in range(3) for j in range(3)}
 
+        # next need to elimnate the already filled in spaces on the board.
         for i, element in enumerate(self.board):
 
             # skip over blank spaces
@@ -98,15 +99,28 @@ class SudokuSolver(object):
             col = i % 9
             square = (row // 3, col // 3)
 
-            # remove the element from possible choices
+            # remove the number from possible choices
             try:
                 rowHash[row].remove(element)
                 colHash[col].remove(element)
                 squareHash[square].remove(element)
             except KeyError:
-                print(row, col, square)
-                # element already removed no solution
+                if element in list(range(1,10)):
+                    print("Invalid Board. Board violates row, col, subsquare constraint.")
+                else:
+                    print("Invalid Board. Board contained invalid elements:", element)
                 return False
+        
+        # finally, simply check their are no positions where no moves can be made,
+        # saves time when the board is known not too have a solution beforehand.
+
+        for i in range(81):
+            if not self.board[i]:
+                row = i // 9
+                col = i % 9
+                square = (row // 3, col // 3)
+                if len(rowHash[row].intersection(colHash[col], squareHash[square])) == 0:
+                    return False
         
         # sets initalized now pass to helper function
 
