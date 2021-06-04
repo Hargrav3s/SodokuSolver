@@ -179,7 +179,6 @@ class SudokuSolver(object):
             colHash[col].discard(num)
             squareHash[square].discard(num)
                 
-            # if the board is solved, done!
             result, msg = self._solve(rowHash, colHash, squareHash, start_time, max_time)
             
             # if solved, we stop!
