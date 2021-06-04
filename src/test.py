@@ -9,13 +9,15 @@ test_boards_path = 'example-boards\\test-boards'
 
 # define a comparison function for lists
 def same(list1, list2):
-    if len(list1) != len(list2):
-        return False
-    
-    for i in range(len(list1)):
-        if list1[i] != list2[i]:
+    if isinstance(list1, list) and isinstance(list2, list):
+        if len(list1) != len(list2):
             return False
-    return True
+        
+        for i in range(len(list1)):
+            if list1[i] != list2[i]:
+                return False
+        return True
+    return False
 
 # get into the correct working directory
 if os.path.isdir(test_boards_path + '\\boards') and os.path.isdir(test_boards_path + '\\solutions'):
@@ -30,13 +32,16 @@ if os.path.isdir(test_boards_path + '\\boards') and os.path.isdir(test_boards_pa
         solution = solver.read_board(os.path.join(os.getcwd() + "\\solutions", name + "_s.txt"))
 
         solver.setBoard(board)
+
+        start_time = perf_counter()
         solver.solve()
+        end_time = perf_counter()
  
 
         if not same(solver.board, solution):
             print("Solver did not find the solution for", name)
         else:
-            print("Solver found the solution for", name)
+            print("Solver found the solution for", name, "in {:.5f} seconds.".format( end_time - start_time))
 
     print()
 
