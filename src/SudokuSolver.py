@@ -178,7 +178,7 @@ class SudokuSolver(object):
             rowHash[row].discard(num)
             colHash[col].discard(num)
             squareHash[square].discard(num)
-                
+            
             result, msg = self._solve(rowHash, colHash, squareHash, start_time, max_time)
             
             # if solved, we stop!

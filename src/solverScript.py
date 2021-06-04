@@ -30,6 +30,6 @@ if os.path.isdir(path):
             print(result, msg)
 
             # write the board
-            solver.writeBoard(sol_path + 'solution_' + file)
+            solver.writeBoard(sol_path + '/' + file[:-4] + '.sln.txt')
 else:
     print("not valid path")
