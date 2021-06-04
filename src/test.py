@@ -1,4 +1,3 @@
-from RWBoards import *
 from SudokuSolver import *
 
 import os
@@ -8,6 +7,7 @@ from time import perf_counter
 solver = SudokuSolver()
 test_boards_path = 'example-boards\\test-boards'
 
+# define a comparison function for lists
 def same(list1, list2):
     if len(list1) != len(list2):
         return False
@@ -18,7 +18,7 @@ def same(list1, list2):
     return True
 
 # get into the correct working directory
-if os.path.isdir(test_boards_path + '\\boards'):
+if os.path.isdir(test_boards_path + '\\boards') and os.path.isdir(test_boards_path + '\\solutions'):
     os.chdir(test_boards_path)
 
     # for each test board
@@ -26,8 +26,8 @@ if os.path.isdir(test_boards_path + '\\boards'):
     for fd in os.listdir(os.getcwd() + "\\boards"):
         name = fd[:-4]
 
-        board = read_board(os.path.join(os.getcwd() + "\\boards", fd))
-        solution = read_board(os.path.join(os.getcwd() + "\\solutions", name + "_s.txt"))
+        board = solver.read_board(os.path.join(os.getcwd() + "\\boards", fd))
+        solution = solver.read_board(os.path.join(os.getcwd() + "\\solutions", name + "_s.txt"))
 
         solver.setBoard(board)
         solver.solve()
@@ -41,4 +41,4 @@ if os.path.isdir(test_boards_path + '\\boards'):
     print()
 
 else:
-    print("Error:", os.getcwd() + "\\boards", "is not a directory")
+    print("Error: Either", os.getcwd() + "\\boards", "or", os.getcwd() + "\\solutions", "is not a directory")
