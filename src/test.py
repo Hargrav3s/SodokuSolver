@@ -1,4 +1,3 @@
-from RWBoards import *
 from SudokuSolver import *
 
 import os
@@ -8,17 +7,20 @@ from time import perf_counter
 solver = SudokuSolver()
 test_boards_path = 'example-boards\\test-boards'
 
+# define a comparison function for lists
 def same(list1, list2):
-    if len(list1) != len(list2):
-        return False
-    
-    for i in range(len(list1)):
-        if list1[i] != list2[i]:
+    if isinstance(list1, list) and isinstance(list2, list):
+        if len(list1) != len(list2):
             return False
-    return True
+        
+        for i in range(len(list1)):
+            if list1[i] != list2[i]:
+                return False
+        return True
+    return False
 
 # get into the correct working directory
-if os.path.isdir(test_boards_path + '\\boards'):
+if os.path.isdir(test_boards_path + '\\boards') and os.path.isdir(test_boards_path + '\\solutions'):
     os.chdir(test_boards_path)
 
     # for each test board
@@ -26,19 +28,22 @@ if os.path.isdir(test_boards_path + '\\boards'):
     for fd in os.listdir(os.getcwd() + "\\boards"):
         name = fd[:-4]
 
-        board = read_board(os.path.join(os.getcwd() + "\\boards", fd))
-        solution = read_board(os.path.join(os.getcwd() + "\\solutions", name + "_s.txt"))
+        board = solver.read_board(os.path.join(os.getcwd() + "\\boards", fd))
+        solution = solver.read_board(os.path.join(os.getcwd() + "\\solutions", name + "_s.txt"))
 
         solver.setBoard(board)
+
+        start_time = perf_counter()
         solver.solve()
+        end_time = perf_counter()
  
 
         if not same(solver.board, solution):
             print("Solver did not find the solution for", name)
         else:
-            print("Solver found the solution for", name)
+            print("Solver found the solution for", name, "in {:.5f} seconds.".format( end_time - start_time))
 
     print()
 
 else:
-    print("Error:", os.getcwd() + "\\boards", "is not a directory")
+    print("Error: Either", os.getcwd() + "\\boards", "or", os.getcwd() + "\\solutions", "is not a directory")
