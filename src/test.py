@@ -1,11 +1,11 @@
-from SudokuSolver import *
+from SudokuSolver import SudokuSolver
 
 import os
 from time import perf_counter
 
 # intialize solver and paths
 solver = SudokuSolver()
-test_boards_path = 'example-boards\\test-boards'
+test_boards_path = 'test-boards'
 
 # define a comparison function for lists
 def same(list1, list2):
@@ -23,7 +23,7 @@ def same(list1, list2):
 if os.path.isdir(test_boards_path + '\\boards') and os.path.isdir(test_boards_path + '\\solutions'):
     os.chdir(test_boards_path)
 
-    # for each test board
+    # for each test board file
     print()
     for fd in os.listdir(os.getcwd() + "\\boards"):
         name = fd[:-4]

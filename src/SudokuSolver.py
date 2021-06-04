@@ -29,7 +29,7 @@ class SudokuSolver(object):
         
         return formated_board
 
-    # sets the board if the board is in valid format
+    # sets the board
     def setBoard(self, board):
 
         # simple check to set the list
@@ -41,12 +41,39 @@ class SudokuSolver(object):
     def clearBoard(self):
         self.board = None
 
-    # READ/WRITE BOARD FROM FILE FUNCTIONS
+    # # # Read Board From File # # #
+    #   DESC
+    #       reads a board from a given path and sets it to the solvers board
     #
-    # Assume the file is in the given format that described in the overview file:
-    #   an ‘X’ represents an open cell and a number indicates a fixed starting value for a cell.
+    #   INPUTS
+    #       path    - path to the board file.
+    #
+    def setBoardWithFile(self, path):
+        board = self.read_board(path)
+        self.setBoard(board)
 
-    # function reads a sudoku board from the path location and returns it as a python list.
+
+    # # # Write Board function # # #
+    #   DESC
+    #       writes the board in the solver to the given path.
+    #
+    #   INPUTS
+    #       path    - path to the output file.
+    #
+    def writeBoard(self, path):
+        if self.board:
+            self.write_board(self.board, path)
+
+
+    # # # Read Board function # # #
+    #   DESC
+    #       reads a board from a given path.
+    #
+    #   INPUTS
+    #       path    - path to the board file.
+    #
+    #   OUTPUTS
+    #       board   - sudoku board as a python list.
     @staticmethod
     def read_board(path):
 
@@ -75,10 +102,16 @@ class SudokuSolver(object):
         
         return puzzle
 
-    # writes a sudoku board in python list format to a file specified by path.
+    # # # Write Board function # # #
+    #   DESC
+    #       writes a board to a file given at a path.
+    #
+    #   INPUTS
+    #       board   - given sudoku board in list format.
+    #       path    - path to the output file.
+    #
     @staticmethod
     def write_board(board, path):
-        
         # create the file to write into
         try:
             with open(path, 'w') as file:
@@ -100,7 +133,23 @@ class SudokuSolver(object):
                 return pos 
 
     
-    # recursive, backtracking solver
+    # # # The main backtracking, recursive solver for the sudoku boards # # #
+    #   DESC
+    #       Main backtracking strategy to solve sudoku boards. Uses the intersection of sets to calulcate
+    #       placeable numbers given the contraints of the game.
+    #
+    #   INPUTS
+    #       rowHash     - hashset of avaliable numbers for a given row
+    #       colHash     - hashset of avaliable numbers for a given column
+    #       squareHash  - hashset of avaliable numbers for a given subsquare
+    #       start_time  - time the solver started
+    #       max_time    - maximum time solver should spend on solving
+    #
+    #   OUTPUTS
+    #   (the following is outputed as a 2-tuple)
+    #       result      - boolean of whether the board was solved or not
+    #       message     - string message that tells why the function exited
+
     def _solve(self, rowHash, colHash, squareHash, start_time, max_time):
 
         if max_time:
@@ -111,18 +160,21 @@ class SudokuSolver(object):
         # find the next empty position
         next_empty = self.findEmptyPos()
 
+        # if there isn't another empty spot, the board is solved
         if next_empty == None:
-            # if there isn't another empty spot
             return True, "Solved!"
 
+        # calculate the row, col, and subsquare of the empty position.
         row = next_empty // 9
         col = next_empty % 9
         square = (row // 3, col // 3)
 
         for num in rowHash[row].intersection(colHash[col], squareHash[square]):
-                
+            
+            # going to test num in the empty position
             self.board[next_empty] = num
 
+            # remove from avaliable numbers in its respective row, col, and subsquare.
             rowHash[row].discard(num)
             colHash[col].discard(num)
             squareHash[square].discard(num)
@@ -130,10 +182,15 @@ class SudokuSolver(object):
             # if the board is solved, done!
             result, msg = self._solve(rowHash, colHash, squareHash, start_time, max_time)
             
+            # if solved, we stop!
             if result:
                 return True, "Solved!"
+            
+            # if the maximum time has been reached, return out of the stack
             elif msg == "Max time reached":
-                return False, "Max time reached"
+                return False, msg
+
+            # otherwise we backtrack
 
             self.board[next_empty] = None
 
@@ -141,9 +198,22 @@ class SudokuSolver(object):
             colHash[col].add(num)
             squareHash[square].add(num)
         
+        # reaching out here, we recieved no solution
         return False, "No solution"
 
-
+    # # # Solve Helper Function # # #
+    #   DESC
+    #       Initalizes the hashsets for the backtracking solve function.
+    #       Checks if the board is invalid before solving.
+    #
+    #   INPUTS
+    #       max_time    - maximum time the function should spend solving
+    #
+    #   OUTPUTS
+    #   (the following is outputed as a 2-tuple)
+    #       result      - boolean of whether the board was solved or not
+    #       message     - string message that tells why the function exited
+    #
     def solve(self, max_time=None):
 
         if not self.board:
@@ -177,7 +247,7 @@ class SudokuSolver(object):
                 else:
                     return False, "Invalid Board. Board contained invalid elements: {}".format(element)
         
-        # finally, simply check their are no positions where no moves can be made,
+        # finally, simply check there are no positions where no moves can be made,
         # saves time when the board is known not too have a solution with the current board state.
 
         for i in range(81):
