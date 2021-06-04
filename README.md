@@ -62,4 +62,4 @@ To further increase the efficiency of the solver, it outright rejects boards tha
 If the board has no solution and makes it into the solver, the solver will eventually return false.
 
 ### Sources
-Sudoku Research Boards [http://lipas.uwasa.fi/~timan/sudoku/](#http://lipas.uwasa.fi/~timan/sudoku/)
+Sudoku Research Boards [http://lipas.uwasa.fi/~timan/sudoku/](http://lipas.uwasa.fi/~timan/sudoku/)
