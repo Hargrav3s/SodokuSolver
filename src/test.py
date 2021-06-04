@@ -34,16 +34,19 @@ if os.path.isdir(test_boards_path + '\\boards') and os.path.isdir(test_boards_pa
         solver.setBoard(board)
 
         start_time = perf_counter()
-        solver.solve()
+        result, msg = solver.solve()
         end_time = perf_counter()
- 
 
-        if not same(solver.board, solution):
-            print("Solver did not find the solution for", name)
+        print("Solution found for {}: {}".format(name, result))
+        print("Message: {}".format(msg))
+
+        if solution:
+            if same(solver.board, solution):
+                print("Solutions Match!")
         else:
-            print("Solver found the solution for", name, "in {:.5f} seconds.".format( end_time - start_time))
-
+            print("No solution to match with")
+        
+        print()
     print()
-
 else:
     print("Error: Either", os.getcwd() + "\\boards", "or", os.getcwd() + "\\solutions", "is not a directory")
