@@ -55,7 +55,7 @@ class SudokuSolver(object):
             with open(path, 'r') as file:
                 lines = file.read().splitlines()
         except FileNotFoundError:
-            print("File does not exist")
+            print("File {} does not exist".format(path))
             return None
         
         # intialize the puzzle
@@ -101,14 +101,19 @@ class SudokuSolver(object):
 
     
     # recursive, backtracking solver
-    def _solve(self, rowHash, colHash, squareHash):
+    def _solve(self, rowHash, colHash, squareHash, start_time, max_time):
+
+        if max_time:
+            from time import time
+            if time() - start_time > max_time:
+                return False, "Max time reached"
 
         # find the next empty position
         next_empty = self.findEmptyPos()
 
         if next_empty == None:
             # if there isn't another empty spot
-            return True
+            return True, "Solved!"
 
         row = next_empty // 9
         col = next_empty % 9
@@ -123,8 +128,12 @@ class SudokuSolver(object):
             squareHash[square].discard(num)
                 
             # if the board is solved, done!
-            if self._solve(rowHash, colHash, squareHash):
-                return True
+            result, msg = self._solve(rowHash, colHash, squareHash, start_time, max_time)
+            
+            if result:
+                return True, "Solved!"
+            elif msg == "Max time reached":
+                return False, "Max time reached"
 
             self.board[next_empty] = None
 
@@ -132,16 +141,16 @@ class SudokuSolver(object):
             colHash[col].add(num)
             squareHash[square].add(num)
         
-        return False
+        return False, "No solution"
 
 
-    def solve(self):
+    def solve(self, max_time=None):
 
         if not self.board:
-            return None
+            return False, "No board"
 
-        # first initalize sets of possible choices for rows, cols, and squares
-        # used to keep track of usable values
+        # first initalize sets of possible choices for rows, cols, and subsquares
+        # used to keep track of usable values for a position.
         rowHash = {i:set([j for j in range(1, 10)]) for i in range(9)}
         colHash = {i:set([j for j in range(1, 10)]) for i in range(9)}
         squareHash = {(i, j): set([k for k in range(1, 10)]) for i in range(3) for j in range(3)}
@@ -164,10 +173,9 @@ class SudokuSolver(object):
                 squareHash[square].remove(element)
             except KeyError:
                 if element in list(range(1,10)):
-                    print("Invalid Board. Board violates row, col, subsquare constraint.")
+                    return False, "Invalid Board. Board violates row, col, subsquare constraint."
                 else:
-                    print("Invalid Board. Board contained invalid elements:", element)
-                return False
+                    return False, "Invalid Board. Board contained invalid elements: {}".format(element)
         
         # finally, simply check their are no positions where no moves can be made,
         # saves time when the board is known not too have a solution with the current board state.
@@ -178,8 +186,8 @@ class SudokuSolver(object):
                 col = i % 9
                 square = (row // 3, col // 3)
                 if len(rowHash[row].intersection(colHash[col], squareHash[square])) == 0:
-                    return False
+                    return False, "No solution"
         
         # call recursive backtracking helper function to solve.
-        return self._solve(rowHash, colHash, squareHash)
-    
+        from time import time
+        return self._solve(rowHash, colHash, squareHash, time(), max_time)
