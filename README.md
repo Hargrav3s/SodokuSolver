@@ -42,6 +42,7 @@ To run either script:
 1. Change into the src directory
 2. Run the python files using the following commands:
 > python test.py
+
 > python solverScript.py
 
 The solver script can run on custom boards too as mentioned in the overview document. To run on custom sudoku boards:
