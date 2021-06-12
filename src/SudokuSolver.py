@@ -126,11 +126,25 @@ class SudokuSolver(object):
         except IOError:
             print("Error writing to file.")
 
-    # finds an empty position on the board.
-    def findEmptyPos(self):
+    # finds an empty position on the board with the smallest number of avaliable numbers.
+    # returns None if no empty position on board.
+    def findEmptyPos(self, rowHash, colHash, squareHash):
+        min_pos = None
+        min_avaliable = 10
         for pos, element in enumerate(self.board):
             if not element:
-                return pos 
+                row = pos // 9
+                col = pos % 9
+                square = (row // 3, col // 3)
+
+                avaliable = len(rowHash[row].intersection(colHash[col], squareHash[square]))
+
+                if avaliable < min_avaliable:
+                    min_avaliable = avaliable
+                    min_pos = pos
+        
+        return min_pos
+                
 
     
     # # # The main backtracking, recursive solver for the sudoku boards # # #
@@ -158,7 +172,7 @@ class SudokuSolver(object):
                 return False, "Max time reached"
 
         # find the next empty position
-        next_empty = self.findEmptyPos()
+        next_empty = self.findEmptyPos(rowHash, colHash, squareHash)
 
         # if there isn't another empty spot, the board is solved
         if next_empty == None:
@@ -241,21 +255,11 @@ class SudokuSolver(object):
                 colHash[col].remove(element)
                 squareHash[square].remove(element)
             except KeyError:
-                if element in list(range(1,10)):
+                if element in set(range(1,10)):
                     return False, "Invalid Board. Board violates row, col, subsquare constraint."
                 else:
                     return False, "Invalid Board. Board contained invalid elements: {}".format(element)
         
-        # finally, simply check there are no positions where no moves can be made,
-        # saves time when the board is known not too have a solution with the current board state.
-
-        for i in range(81):
-            if not self.board[i]:
-                row = i // 9
-                col = i % 9
-                square = (row // 3, col // 3)
-                if len(rowHash[row].intersection(colHash[col], squareHash[square])) == 0:
-                    return False, "No solution"
         
         # call recursive backtracking helper function to solve.
         from time import time
